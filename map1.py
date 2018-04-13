@@ -1,5 +1,6 @@
 import folium
 import pandas
+import json
 
 data = pandas.read_csv("Volcanoes_USA.txt")
 lat = list(data["LAT"])
@@ -23,12 +24,13 @@ fg1 = folium.FeatureGroup(name="Population")
 
 for lt, ln, st, el, vt in zip(lat, lon, stat, elev, vType):
     fg.add_child(folium.CircleMarker(location = [lt, ln],
-    popup="Status: %s | Elevation: %s | Type: %s" % (st, el, vt), fill_color=color_producer(el),
+    popup="Status: {} | Elevation: {} | Type: {}".format(st, el, vt), fill_color=color_producer(el),
     fill=True, color='#D3D3D3', fill_opacity=1))
 
-fg1.add_child(folium.GeoJson(data=open("world.json", 'r', encoding='utf-8-sig').read(),
-style_function=lambda x: {'fillColor':'green' if x['properties']['POP2005'] < 10000000
-else 'orange' if 10000000 <= x['properties']['POP2005'] < 20000000 else 'red'}))
+with open("world.json", 'r', encoding='utf-8-sig') as f:
+	fg1.add_child(folium.GeoJson(data=json.load(f),	
+	style_function=lambda x: {'fillColor':'green' if x['properties']['POP2005'] < 10000000
+	else 'orange' if 10000000 <= x['properties']['POP2005'] < 20000000 else 'red'}))
 
 map.add_child(fg)
 map.add_child(fg1)
